@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<h1 style="margin-bottom: 20px;">Profile Card Generator</h1>
+<h2>Enter your Information</h2>
+
+<body style="display:flex; flex-direction:column; padding:100px 0 0 300px;">
+    <input type="text" id="user" name="fieldName" placeholder="Enter username"
+        style=" margin-bottom: 20px; padding: 3px; width: 160px;">
+
+    <input type="text" id="job" name="fieldJob" placeholder="Enter job tilte"
+        style=" margin-bottom: 20px; padding: 3px; width: 160px;">
+
+    <textarea name="fieldBio" id="userBio" placeholder="Enter your bio."
+        style="margin: 5px 0; padding: 5px; width: 310px; height: 50px;"></textarea> 
+
+    <label for="favcolor">Pick your favorite color:</label>
+    <input type="color" id="favcolor" name="favcolor" oninput="document.getElementById('preview').style.backgroundColor = this.value">
+    <div id="preview" style="width:50px; height:50px; margin-top:10px;  border:1px solid #000;"></div>
+
+    <button id="submit" style="margin-bottom: 40px; margin-top: 10px; padding: 2px; width: 320px;">Generate profile card</button>
+
+    <h3 style="margin-bottom: 10px; margin-top: 2px;">Real Time Preview</h3>
+    <div id="preview">
+        <p id="previewName">Name: </p>
+        <p id="previewJob">Job: </p>
+    </div>
+
+    <style>
+        /* Pop-in animation from left to right */
+        @keyframes popInRight {
+          0% { transform: translateX(-100%) scale(0); opacity: 0; }
+          60% { transform: translateX(20px) scale(1.2); opacity: 1; }
+          100% { transform: translateX(0) scale(1); }
+        }
+
+        .pop-card {
+          animation: popInRight 0.5s ease forwards;
+          padding: 10px;
+          margin-top: 10px;
+          width: 320px;
+          background-color: #fff;
+        }
+
+        /* Hover zoom for the whole card container */
+        .card-container {
+          transition: transform 0.3s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .card-container:hover {
+          transform: scale(1.1);
+        }
+
+        /* Heart glow */
+        .heart {
+          cursor: pointer;
+          font-size: 30px;
+          transition: 0.3s;
+        }
+        .heart.liked {
+          color: red;
+          text-shadow: 0 0 8px red;
+        }
+    </style>
+</body>
+
+<script>
+    const userInput = document.getElementById('user');
+    const jobInput = document.getElementById('job');
+    const previewName = document.getElementById('previewName');
+    const previewJob = document.getElementById('previewJob');
+
+    userInput.addEventListener('input', () => {
+        previewName.textContent = "Name: " + userInput.value;
+    });
+    jobInput.addEventListener('input', () => {
+        previewJob.textContent = "Job: " + jobInput.value;
+    });
+
+    const submitBtn = document.getElementById('submit');
+    const bioInput = document.getElementById('userBio');
+    const colorInput = document.getElementById('favcolor');
+
+    submitBtn.addEventListener('click', () => {
+        const cardContainer = document.createElement('div');
+        cardContainer.classList.add('card-container');
+        cardContainer.style.position = 'absolute';
+        cardContainer.style.top = '100px'; 
+        cardContainer.style.right = '50px';
+
+        const header = document.createElement('h3');
+        header.textContent = "Your Profile Card";
+        cardContainer.appendChild(header);
+
+        const card = document.createElement('div');
+        card.classList.add('pop-card'); 
+        card.style.border = `4px solid ${colorInput.value}`;
+
+        const nameEl = document.createElement('p');
+        nameEl.textContent = "Name: " + userInput.value;
+        card.appendChild(nameEl);
+
+        const jobEl = document.createElement('p');
+        jobEl.textContent = "Job: " + jobInput.value;
+        card.appendChild(jobEl);
+
+        const bioEl = document.createElement('p');
+        bioEl.textContent = "Bio: " + bioInput.value;
+        card.appendChild(bioEl);
+
+        // Like section with heart above counter, left-aligned
+        const likeSection = document.createElement('div');
+        likeSection.style.display = "flex";
+        likeSection.style.flexDirection = "column";
+        likeSection.style.alignItems = "flex-start"; // left-align
+
+        const heart = document.createElement('span');
+        heart.classList.add('heart');
+        heart.textContent = "❤️";
+
+        const counter = document.createElement('span');
+        counter.textContent = "Like: 0";
+
+        let liked = false;
+
+        heart.addEventListener('click', () => {
+            liked = !liked;
+            let count = parseInt(counter.textContent.split(':')[1]);
+            if (liked) {
+                count++;
+                heart.classList.add('liked');
+            } else {
+                count--;
+                heart.classList.remove('liked');
+            }
+            counter.textContent = `Like: ${count}`;
+        });
+
+        likeSection.appendChild(heart);
+        likeSection.appendChild(counter);
+        card.appendChild(likeSection);
+
+        cardContainer.appendChild(card);
+        document.body.appendChild(cardContainer);
+    });
+</script>
+</html>
