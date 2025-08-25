@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Task Manager</title>
+</head>
+
+<body style="display:flex; flex-direction:column; padding:100px 0 0 300px; font-family: Arial, sans-serif;">
+    <h1 style="margin-bottom: 20px;"font-family: Arial, sans-serif;>Interactive Task Manager</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter task"
+        style="margin-bottom: 20px; padding: 3px; width: 630px;">
+
+    <label for="priority" style="margin-bottom:5px;font-family: Arial, sans-serif; font-weight: bold;">Select priority</label>
+    <select id="priority" style="margin-bottom: 20px; padding: 3px; width: 638px;">
+        <option value="High">High priority</option>
+        <option value="Medium">Medium priority</option>
+        <option value="Low">Low priority</option>
+    </select>
+
+    <button id="add" style="margin-bottom: 20px; padding: 3px; width: 138px; font-family: Arial, sans-serif; font-weight: bold; ">Add Task</button>
+
+    <input type="text" id="searchInput" placeholder="Search task"
+        style="margin-bottom: 20px; padding: 3px; width: 630px;">
+
+    <button id="clear" style="margin-bottom: 20px; padding: 3px; width: 138px;font-family: Arial, sans-serif; font-weight: bold;">Clear</button>
+
+    <div style="display:flex; gap:20px; margin-top:40px;">
+        <div id="todo" class="card" style="border:1px solid #ddd; padding:10px; width:180px; min-height:220px; display:flex; flex-direction:column; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); background-color:#fff; transition: transform 0.2s, box-shadow 0.2s;">
+            <h3 style="margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px; color:#333;">To Do</h3>
+        </div>
+
+        <div id="inProgress" class="card" style="border:1px solid #ddd; padding:10px; width:180px; min-height:220px; display:flex; flex-direction:column; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); background-color:#fff; transition: transform 0.2s, box-shadow 0.2s;">
+            <h3 style="margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px; color:#333;">In Progress</h3>
+        </div>
+
+        <div id="done" class="card" style="border:1px solid #ddd; padding:10px; width:180px; min-height:220px; display:flex; flex-direction:column; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); background-color:#fff; transition: transform 0.2s, box-shadow 0.2s;">
+            <h3 style="margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px; color:#333;">Done</h3>
+        </div>
+    </div>
+</body>
+<script>
+    const addBtn = document.getElementById('add');
+    const taskInput = document.getElementById('taskInput');
+    const prioritySelect = document.getElementById('priority');
+    const searchInput = document.getElementById('searchInput');
+    const todoCard = document.getElementById('todo');
+    const inProgressCard = document.getElementById('inProgress');
+    const doneCard = document.getElementById('done');
+    const cards = [todoCard, inProgressCard, doneCard];
+
+    function getPriorityColor(priority) {
+        switch(priority) {
+            case "High": return "red";
+            case "Medium": return "orange";
+            case "Low": return "green";
+            default: return "black";
+        }
+    }
+
+    addBtn.addEventListener('click', () => {
+        const taskText = taskInput.value.trim();
+        const priority = prioritySelect.value;
+        if(!taskText) return;
+
+        const taskDiv = document.createElement('div');
+        taskDiv.textContent = `${taskText} (${priority})`;
+        taskDiv.style.padding = "5px";
+        taskDiv.style.margin = "5px 0";
+        taskDiv.style.color = getPriorityColor(priority);
+        taskDiv.style.backgroundColor = "#f9f9f9";
+        taskDiv.style.borderLeft = `5px solid ${getPriorityColor(priority)}`;
+        taskDiv.style.borderRadius = "4px";
+        taskDiv.style.cursor = "grab";
+        taskDiv.setAttribute("draggable", true);
+
+        taskDiv.addEventListener('dragstart', (e) => e.target.classList.add("dragging"));
+        taskDiv.addEventListener('dragend', (e) => e.target.classList.remove("dragging"));
+
+        todoCard.appendChild(taskDiv);
+        taskInput.value = "";
+    });
+
+    cards.forEach(card => {
+        card.addEventListener('dragover', (e) => e.preventDefault());
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dragging = document.querySelector('.dragging');
+            if(dragging) card.appendChild(dragging);
+        });
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+        cards.forEach(card => {
+            Array.from(card.children)
+                .filter(child => child.tagName !== "H3")
+                .forEach(task => card.removeChild(task));
+        });
+    });
+
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        cards.forEach(card => {
+            Array.from(card.children).forEach(child => {
+                if(child.tagName !== "H3") {
+                    child.style.display = child.textContent.toLowerCase().includes(filter) ? "block" : "none";
+                }
+            });
+        });
+    });
+</script>
+</html>
