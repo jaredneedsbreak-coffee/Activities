@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @keyframes shake { 0% { transform: translateX(0); }25% { transform: translateX(-5px); }50% { transform: translateX(5px); } 75% { transform: translateX(-5px); }100% { transform: translateX(0); }}.shake {animation: shake 0.3s;}
+    </style>
+</head>
+<body style="display: flex; padding: 30px; flex-direction: column; ">
+
+    <div id="form" class="card" style="border:1px solid #ddd; padding:10px; width:180px; min-height:220px; display:none; flex-direction:column; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); background-color:#fff; transition: transform 0.2s, box-shadow 0.2s;">
+        <input type="text" id="name" placeholder="Name" style="margin-bottom: 30px; padding: 5px; width: 130px;">
+        <input type="text" id="age" placeholder="Age" style="margin-bottom: 30px; padding: 5px; width: 130px;">
+        <select id="gender" style="margin-bottom: 30px; padding: 5px; width: 140px;" >
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="croisant">Croisant</option>
+            <option value="other">Others</option>
+        </select>
+        <input type="text" id="specify" placeholder="Please Specify" style="margin-bottom: 30px; padding: 5px; width: 130px; display:none;">
+        <button id="submit" style="margin-bottom: 30px; padding: 5px; width: 142px;">Submit</button>
+    </div>
+
+    <div id="displayForm" style="display:none; border:1px solid #ddd; padding:10px; width:182px; min-height:120px; flex-direction:column; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); background-color:#f9f9f9; margin-top:20px;">
+        <p><strong>Name:</strong> <span id="displayName"></span></p>
+        <p><strong>Age:</strong> <span id="displayAge"></span></p>
+        <p><strong>Gender:</strong> <span id="displayGender"></span></p>
+    </div>
+
+</body>
+<script>
+    const form = document.getElementById("form");
+    const nameInput = document.getElementById("name");
+    const ageInput = document.getElementById("age");
+    const genderSelect = document.getElementById("gender");
+    const specifyInput = document.getElementById("specify");
+    const submitBtn = document.getElementById("submit");
+
+    const displayForm = document.getElementById("displayForm");
+    const displayName = document.getElementById("displayName");
+    const displayAge = document.getElementById("displayAge");
+    const displayGender = document.getElementById("displayGender");
+
+    document.addEventListener("keydown", function(e) {
+        if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "n") {
+            e.preventDefault(); 
+            form.style.display = "flex";
+            nameInput.focus();
+        }
+    });
+
+    nameInput.addEventListener("keydown", e => { 
+        if (e.key==="Enter") { e.preventDefault(); ageInput.focus(); } 
+    });
+    ageInput.addEventListener("keydown", e => { 
+        if (e.key==="Enter") { e.preventDefault(); genderSelect.focus(); } 
+    });
+    genderSelect.addEventListener("keydown", e => { 
+        if (e.key==="Enter") { 
+            e.preventDefault(); 
+            if (genderSelect.value === "other") specifyInput.focus();
+            else submitBtn.click(); 
+        } 
+    });
+    specifyInput.addEventListener("keydown", e => { 
+        if (e.key==="Enter") { e.preventDefault(); submitBtn.click(); } 
+    });
+
+    genderSelect.addEventListener("change", function() {
+        if (genderSelect.value === "other") {
+            specifyInput.style.display = "block";
+        } else {
+            specifyInput.style.display = "none";
+            specifyInput.value = "";
+        }
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "`") {
+            e.preventDefault();
+            if (e.ctrlKey) { 
+                nameInput.value=""; 
+                ageInput.value=""; 
+                specifyInput.value="";
+            }
+            else { 
+                if (document.activeElement===nameInput) nameInput.value=""; 
+                else if (document.activeElement===ageInput) ageInput.value=""; 
+                else if (document.activeElement===specifyInput) specifyInput.value=""; 
+            }
+        }
+    });
+
+    submitBtn.addEventListener("click", function() {
+        if (nameInput.value.trim() === "" || ageInput.value.trim() === "" || 
+            (genderSelect.value === "other" && specifyInput.value.trim() === "")) {
+            form.classList.add("shake");
+            setTimeout(() => form.classList.remove("shake"), 300);
+            return;
+        }
+
+        const genderValue = 
+            genderSelect.value === "other" && specifyInput.value.trim() !== "" 
+            ? specifyInput.value 
+            : genderSelect.value;
+
+        displayName.textContent = nameInput.value;
+        displayAge.textContent = ageInput.value;
+        displayGender.textContent = genderValue;
+        displayForm.style.display = "flex";
+
+        const formData = {
+            name: nameInput.value,
+            age: ageInput.value,
+            gender: genderValue
+        };
+        localStorage.setItem("formData", JSON.stringify(formData));
+    });
+
+    window.addEventListener("load", function() {
+        const savedData = localStorage.getItem("formData");
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            displayName.textContent = data.name;
+            displayAge.textContent = data.age;
+            displayGender.textContent = data.gender;
+            displayForm.style.display = "flex";
+        }
+    });
+</script>
+</html>
